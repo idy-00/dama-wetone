@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Do you love me? 💕</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OyTttBxEGkTsoIVsiP1iaTtM8b3+hu2kB6pQ4Clr5yug==" crossorigin="anonymous"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --pink:       #ff6b9d;
+  --pink-deep:  #d63384;
+  --pink-light: #ffb3cc;
+  --pink-pale:  #fff0f5;
+  --lavender:   #c77dff;
+  --white:      #ffffff;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(145deg, #ffd6e7 0%, #ffb3d1 25%, #e8b4f8 55%, #bfb8ff 85%, #a8d8ff 100%);
+  font-family: 'Nunito', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* ---- BACKGROUND ---- */
+.bg-heart {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  user-select: none;
+  will-change: transform, opacity;
+}
+
+/* ---- MAIN CARD ---- */
+.card {
+  position: relative;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 36px;
+  padding: 56px 64px 52px;
+  text-align: center;
+  box-shadow:
+    0 24px 80px rgba(255, 107, 157, 0.28),
+    0 0 0 1.5px rgba(255, 255, 255, 0.7),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  max-width: 480px;
+  width: 90vw;
+}
+
+.big-heart {
+  font-size: 56px;
+  display: block;
+  margin-bottom: 12px;
+  line-height: 1;
+  will-change: transform;
+}
+
+.question {
+  font-family: 'Pacifico', cursive;
+  font-size: clamp(1.9rem, 5vw, 2.6rem);
+  color: var(--pink-deep);
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.sub-text {
+  font-size: 1rem;
+  color: #c06fa0;
+  margin-bottom: 44px;
+  font-weight: 600;
+}
+
+.buttons-row {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* YES button */
+.btn-yes {
+  background: linear-gradient(135deg, #ff6b9d 0%, #ff4d6d 100%);
+  color: white;
+  border: none;
+  padding: 15px 46px;
+  border-radius: 50px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(255, 77, 109, 0.42), inset 0 1px 0 rgba(255,255,255,0.25);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  position: relative;
+  z-index: 12;
+  letter-spacing: 0.02em;
+}
+.btn-yes:hover {
+  transform: scale(1.07) translateY(-3px);
+  box-shadow: 0 14px 40px rgba(255, 77, 109, 0.52), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+.btn-yes:active { transform: scale(0.97); }
+
+/* NO button — fixed so it can run anywhere */
+.btn-no {
+  background: rgba(255,255,255,0.72);
+  color: #bbb;
+  border: 2px solid #e8e8e8;
+  padding: 15px 46px;
+  border-radius: 50px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  position: fixed;
+  z-index: 20;
+  transition: background 0.2s, color 0.2s;
+  letter-spacing: 0.02em;
+  will-change: left, top;
+}
+
+/* ---- CHOIX INDISPONIBLE ---- */
+#choix-indispo {
+  position: fixed;
+  top: 50%; left: 50%;
+  z-index: 100;
+  background: white;
+  border-radius: 24px;
+  padding: 36px 52px;
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.18), 0 0 0 1.5px rgba(255,107,157,0.2);
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+}
+#choix-indispo .ci-icon { font-size: 3.2rem; line-height: 1; }
+#choix-indispo .ci-title {
+  font-family: 'Pacifico', cursive;
+  color: var(--pink-deep);
+  font-size: 1.45rem;
+  margin-top: 14px;
+}
+#choix-indispo .ci-sub {
+  color: #c0a0b0;
+  font-size: 0.88rem;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+/* ---- FLY HEARTS (burst) ---- */
+.fly-heart {
+  position: fixed;
+  pointer-events: none;
+  z-index: 51;
+  will-change: transform, opacity;
+}
+
+/* ---- PULSE animation for big heart ---- */
+@keyframes hpulse {
+  0%, 100% { transform: scale(1) rotate(-5deg); }
+  40%       { transform: scale(1.22) rotate(5deg); }
+  70%       { transform: scale(1.10) rotate(-3deg); }
+}
+.big-heart { animation: hpulse 1.6s ease-in-out infinite; }
+
+/* ---- SUCCESS screen ---- */
+#success-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+}
+#success-screen .s-heart { font-size: 5rem; line-height: 1; margin-bottom: 18px; }
+#success-screen .s-title {
+  font-family: 'Pacifico', cursive;
+  font-size: clamp(2.4rem, 7vw, 4rem);
+  color: var(--pink-deep);
+  text-shadow: 0 4px 24px rgba(214,51,132,0.28);
+  margin-bottom: 14px;
+}
+#success-screen .s-sub {
+  font-size: 1.3rem;
+  color: #e07aaa;
+  font-weight: 700;
+}
+</style>
+</head>
+<body>
+
+<div class="card" id="main-card">
+  <span class="big-heart">💕</span>
+  <h1 class="question">Do you love me?</h1>
+  <p class="sub-text">Réponds honnêtement… 🥺</p>
+  <div class="buttons-row">
+    <button class="btn-yes" id="btn-yes">Oui 💖</button>
+  </div>
+</div>
+
+<button class="btn-no" id="btn-no">Non 🙅</button>
+
+<div id="choix-indispo">
+  <div class="ci-icon">🚫</div>
+  <div class="ci-title">Choix indisponible !</div>
+  <div class="ci-sub">Cette option n'existe pas 💕</div>
+</div>
+
+<div id="success-screen">
+  <div class="s-heart">💖</div>
+  <div class="s-title">C'est mieux pour toi 😌</div>
+  <div class="s-sub">Tu as fait le bon choix 💕</div>
+</div>
+
+<script>
+const HEARTS = ['💕','💖','💗','💓','💞','❤️','🩷','💝','🌸','✨'];
+const btnYes  = document.getElementById('btn-yes');
+const btnNo   = document.getElementById('btn-no');
+const card    = document.getElementById('main-card');
+const overlay = document.getElementById('choix-indispo');
+const success = document.getElementById('success-screen');
+
+/* ---------- INITIAL STATES (prevent FOUC) ---------- */
+gsap.set(card,    { opacity: 0, scale: 0.72, y: 50 });
+gsap.set(btnNo,   { opacity: 0 });
+gsap.set(overlay, { transformOrigin: '50% 50%' });
+
+/* ---------- PLACE NO BUTTON next to YES ---------- */
+function snapNoToYes() {
+  const yr = btnYes.getBoundingClientRect();
+  btnNo.style.left = (yr.right + 18) + 'px';
+  btnNo.style.top  = yr.top + 'px';
+}
+
+/* ---------- ENTRANCE ---------- */
+window.addEventListener('load', () => {
+  snapNoToYes();
+
+  gsap.timeline({ defaults: { ease: 'back.out(1.8)' } })
+    .to(card,  { opacity: 1, scale: 1, y: 0, duration: 0.85 })
+    .to(btnNo, { opacity: 1, duration: 0.4 }, '-=0.25');
+
+  startBgHearts();
+});
+
+/* ---------- BACKGROUND FLOATING HEARTS ---------- */
+function startBgHearts() {
+  // Initial batch — staggered so they fill the screen from the start
+  for (let i = 0; i < 28; i++) spawnBgHeart(i * 280);
+  // Continuous stream
+  setInterval(() => spawnBgHeart(0), 700);
+}
+
+function spawnBgHeart(delayMs) {
+  const el = document.createElement('span');
+  el.className = 'bg-heart';
+  el.textContent = HEARTS[Math.floor(Math.random() * HEARTS.length)];
+  const size = 14 + Math.random() * 30;
+  el.style.fontSize = size + 'px';
+  el.style.left = (Math.random() * 102) + 'vw';
+  el.style.top  = '105vh';
+  document.body.appendChild(el);
+
+  const dur   = 7 + Math.random() * 9;
+  const wobX  = (Math.random() - 0.5) * 180;
+  const delay = delayMs / 1000;
+
+  gsap.fromTo(el,
+    { y: 0, x: 0, opacity: 0, rotation: (Math.random()-0.5)*30 },
+    {
+      y: -(window.innerHeight * 1.2 + 60),
+      x: wobX,
+      opacity: 0.65,
+      rotation: (Math.random()-0.5)*360,
+      duration: dur,
+      delay,
+      ease: 'none',
+      onComplete: () => el.remove()
+    }
+  );
+  // fade in at start, fade out at end
+  gsap.to(el, { opacity: 0, duration: 1.5, delay: delay + dur - 1.8, ease: 'power1.in' });
+}
+
+/* ---------- NO BUTTON — RUN AWAY ---------- */
+let noAttempts = 0;
+let escaping = false;
+
+function randomSafePos() {
+  const bw = btnNo.offsetWidth  || 130;
+  const bh = btnNo.offsetHeight || 54;
+  const pad = 12;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const cr = card.getBoundingClientRect();
+
+  for (let t = 0; t < 30; t++) {
+    const x = pad + Math.random() * (vw - bw - pad * 2);
+    const y = pad + Math.random() * (vh - bh - pad * 2);
+    // keep away from card
+    const clearCard = x + bw < cr.left - 16 || x > cr.right + 16
+                   || y + bh < cr.top  - 16 || y > cr.bottom + 16;
+    if (clearCard) return { x, y };
+  }
+  // fallback: top-right corner
+  return { x: vw - bw - 20, y: 20 };
+}
+
+function flee() {
+  if (escaping) return;
+  escaping = true;
+  noAttempts++;
+
+  const pos = randomSafePos();
+  gsap.to(btnNo, {
+    left: pos.x + 'px',
+    top:  pos.y + 'px',
+    duration: 0.22,
+    ease: 'power3.out',
+    onComplete: () => { escaping = false; }
+  });
+
+  // Shrink after many attempts
+  if (noAttempts > 8) {
+    gsap.to(btnNo, { scale: Math.max(0.45, 1 - noAttempts * 0.05), duration: 0.4 });
+  }
+}
+
+btnNo.addEventListener('mouseenter', flee);
+btnNo.addEventListener('mousemove',  flee);
+
+// Touch: flee on first touches, show indispo after 3
+let touchTaps = 0;
+btnNo.addEventListener('touchstart', e => {
+  e.preventDefault();
+  touchTaps++;
+  if (touchTaps < 3) { flee(); }
+  else { touchTaps = 0; showIndispo(); }
+}, { passive: false });
+
+btnNo.addEventListener('click', showIndispo);
+
+/* ---------- CHOIX INDISPONIBLE ---------- */
+let indispoVisible = false;
+
+function showIndispo() {
+  if (indispoVisible) return;
+  indispoVisible = true;
+
+  gsap.to(btnNo, { opacity: 0, scale: 0.8, duration: 0.2 });
+
+  gsap.timeline()
+    .to(overlay, {
+      opacity: 1,
+      scale: 1,
+      duration: 0.45,
+      ease: 'back.out(2)',
+      onStart: () => {
+        overlay.style.transform = 'translate(-50%, -50%) scale(0)';
+        gsap.set(overlay, { x: '-50%', y: '-50%' });
+      }
+    })
+    // card shake
+    .to(card, { x: 10, duration: 0.045, repeat: 9, yoyo: true, ease: 'power1.inOut' }, '<')
+    .set(card, { x: 0 });
+
+  // Reset after 2s
+  setTimeout(() => {
+    gsap.timeline()
+      .to(overlay, { opacity: 0, scale: 0.6, duration: 0.3, ease: 'back.in(2)' })
+      .call(() => {
+        noAttempts  = 0;
+        touchTaps   = 0;
+        indispoVisible = false;
+        gsap.set(btnNo, { scale: 1 });
+        snapNoToYes();
+        gsap.to(btnNo, { opacity: 1, duration: 0.35 });
+      });
+  }, 2200);
+}
+
+/* ---------- YES — HEART EXPLOSION ---------- */
+btnYes.addEventListener('click', () => {
+  burstHearts(100);
+
+  gsap.timeline()
+    .to([card, btnNo], { opacity: 0, scale: 0.85, duration: 0.45, delay: 0.2, ease: 'power2.in' })
+    .call(showSuccessScreen);
+});
+
+function burstHearts(count) {
+  const cx = window.innerWidth  / 2;
+  const cy = window.innerHeight / 2;
+
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('span');
+    el.className = 'fly-heart';
+    el.textContent = HEARTS[Math.floor(Math.random() * HEARTS.length)];
+    el.style.fontSize = (16 + Math.random() * 36) + 'px';
+    el.style.left = cx + 'px';
+    el.style.top  = cy + 'px';
+    document.body.appendChild(el);
+
+    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
+    const dist  = 120 + Math.random() * 480;
+    const tx = Math.cos(angle) * dist;
+    const ty = Math.sin(angle) * dist - 80;
+
+    gsap.to(el, {
+      x: tx, y: ty,
+      scale: 0,
+      rotation: (Math.random() - 0.5) * 720,
+      opacity: 0,
+      duration: 1.1 + Math.random() * 0.9,
+      delay: Math.random() * 0.35,
+      ease: 'power2.out',
+      onComplete: () => el.remove()
+    });
+  }
+}
+
+function showSuccessScreen() {
+  gsap.set(success, { opacity: 0, scale: 0.6, y: 30 });
+  gsap.to(success,  { opacity: 1, scale: 1, y: 0, duration: 0.8, ease: 'back.out(1.9)' });
+
+  // Keep spawning hearts in background
+  let n = 0;
+  const rain = setInterval(() => {
+    for (let j = 0; j < 6; j++) spawnBgHeart(j * 80);
+    if (++n > 12) clearInterval(rain);
+  }, 400);
+}
+</script>
+</body>
+</html>
