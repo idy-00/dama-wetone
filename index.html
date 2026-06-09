@@ -220,7 +220,7 @@ body {
 <div id="choix-indispo">
   <div class="ci-icon">🚫</div>
   <div class="ci-title">Choix indisponible !</div>
-  <div class="ci-sub">Cette option n'existe pas 💕</div>
+  <div class="ci-sub">Cette option n'existe pas, <strong style="color:#d63384;font-size:1.1em;">idiote</strong> 💕</div>
 </div>
 
 <div id="success-screen">
@@ -323,10 +323,31 @@ function randomSafePos() {
   return { x: vw - bw - 20, y: 20 };
 }
 
+const NO_EASY_THRESHOLD = 10;
+
+function makeEasy() {
+  // Snap back near YES, full size, stop fleeing
+  snapNoToYes();
+  gsap.to(btnNo, { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(1.8)' });
+  btnNo.classList.add('easy');
+  btnNo.style.cursor = 'pointer';
+  // pulse to draw attention
+  gsap.timeline({ repeat: 3 })
+    .to(btnNo, { scale: 1.12, duration: 0.2, ease: 'power1.out' })
+    .to(btnNo, { scale: 1,    duration: 0.2, ease: 'power1.in' });
+}
+
 function flee() {
   if (escaping) return;
+  if (btnNo.classList.contains('easy')) return;
   escaping = true;
   noAttempts++;
+
+  if (noAttempts >= NO_EASY_THRESHOLD) {
+    escaping = false;
+    makeEasy();
+    return;
+  }
 
   const pos = randomSafePos();
   gsap.to(btnNo, {
@@ -337,9 +358,9 @@ function flee() {
     onComplete: () => { escaping = false; }
   });
 
-  // Shrink after many attempts
-  if (noAttempts > 8) {
-    gsap.to(btnNo, { scale: Math.max(0.45, 1 - noAttempts * 0.05), duration: 0.4 });
+  // Shrink gradually
+  if (noAttempts > 5) {
+    gsap.to(btnNo, { scale: Math.max(0.55, 1 - noAttempts * 0.04), duration: 0.4 });
   }
 }
 
@@ -389,6 +410,7 @@ function showIndispo() {
         noAttempts  = 0;
         touchTaps   = 0;
         indispoVisible = false;
+        btnNo.classList.remove('easy');
         gsap.set(btnNo, { scale: 1 });
         snapNoToYes();
         gsap.to(btnNo, { opacity: 1, duration: 0.35 });
